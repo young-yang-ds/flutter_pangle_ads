@@ -119,8 +119,10 @@ NSString *const kAdFeedViewId=@"flutter_pangle_ads_feed";
 // 1，不屏蔽个性化推荐广告
 - (void) setUserExtData:(FlutterMethodCall*) call{
     NSString *personalAdsType = call.arguments[@"personalAdsType"];
+    // PAG SDK 使用 PAGConfig 设置用户扩展数据
     NSString *data = [NSString stringWithFormat:@"[{\"name\":\"personal_ads_type\",\"value\":\"%@\"}]", personalAdsType];
-    [BUAdSDKManager setUserExtData: data];
+    PAGConfig *config = [PAGConfig shareConfig];
+    config.userDataString = data;
 }
 
 #pragma mark - FlutterStreamHandler
