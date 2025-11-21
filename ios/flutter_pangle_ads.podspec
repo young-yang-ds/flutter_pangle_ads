@@ -16,8 +16,8 @@ FlutterAds 致力于构建优质的 Flutter 广告变现插件
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  # 依赖穿山甲广告：https://github.com/CocoaPods/Specs/tree/master/Specs/d/9/8/Ads-CN/
-  s.dependency 'Ads-CN','6.2.1.6'
+  # Pod:https://github.com/CocoaPods/Specs/tree/master/Specs/d/1/c/Ads-Global
+  s.dependency 'Ads-Global', '6.3.1.0'
   s.platform = :ios, '11.0'
   s.static_framework = true
 
