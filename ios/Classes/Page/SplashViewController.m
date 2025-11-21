@@ -36,7 +36,7 @@
     // 广告请求配置
     PAGAppOpenRequest *request = [PAGAppOpenRequest request];
     // 加载开屏广告
-    [PAGAppOpenAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGAppOpenAd * _Nullable appOpenAd, NSError * _Nullable error) {
+    [PAGLAppOpenAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGLAppOpenAd * _Nullable appOpenAd, NSError * _Nullable error) {
         if (error) {
             NSLog(@"Failed to load ad: %@", error.localizedDescription);
             [self dismissPage];
@@ -58,9 +58,9 @@
 }
 
 
-#pragma mark - PAGAppOpenAdDelegate
+#pragma mark - PAGLAppOpenAdDelegate
 
-- (void)adDidShow:(PAGAppOpenAd *)ad {
+- (void)adDidShow:(PAGLAppOpenAd *)ad {
     NSLog(@"%s",__FUNCTION__);
     // 发送广告曝光事件
     [self.sp sendEventAction:onAdExposure];
@@ -69,13 +69,13 @@
     [self.view addSubview:self.splashView];
 }
 
-- (void)adDidClick:(PAGAppOpenAd *)ad {
+- (void)adDidClick:(PAGLAppOpenAd *)ad {
     NSLog(@"%s",__FUNCTION__);
     // 发送广告点击事件
     [self.sp sendEventAction:onAdClicked];
 }
 
-- (void)adDidDismiss:(PAGAppOpenAd *)ad {
+- (void)adDidDismiss:(PAGLAppOpenAd *)ad {
     NSLog(@"%s",__FUNCTION__);
     // 发送广告关闭事件
     [self.sp sendEventAction:onAdClosed];

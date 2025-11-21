@@ -11,9 +11,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SplashViewController : UIViewController<PAGAppOpenAdDelegate>
+@interface SplashViewController : UIViewController<PAGLAppOpenAdDelegate>
 @property (strong, nonatomic) SplashPage *sp;
-@property (strong, nonatomic) PAGAppOpenAd *splashAd;
+@property (strong, nonatomic) PAGLAppOpenAd *splashAd;
 @property (strong, nonatomic) UIView *splashView;
 @property (nonatomic,copy) NSString *posId;
 @property (nonatomic,copy) NSString *logo;
