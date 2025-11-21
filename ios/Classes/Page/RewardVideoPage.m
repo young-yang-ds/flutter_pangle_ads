@@ -14,7 +14,10 @@
     self.userId = call.arguments[@"userId"];
     // 初始化激励视频广告
     PAGRewardedRequest *request = [PAGRewardedRequest request];
-    // PAG SDK 的 request 对象通常不需要设置额外参数
+    // 设置竞价相关参数
+    if ([request respondsToSelector:@selector(setAdString:)]) {
+        request.adString = self.posId;
+    }
     [PAGRewardedAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGRewardedAd * _Nullable rewardedAd, NSError * _Nullable error) {
         if (error) {
             NSLog(@"Failed to load rewarded ad: %@", error.localizedDescription);

@@ -38,8 +38,13 @@
     self.autoClose = [call.arguments[@"autoClose"] boolValue];
     // 创建 Banner 容器
     self.bannerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
-    // PAG SDK Banner 广告加载
-    [PAGBannerAd loadAdWithSlotID:self.posId request:nil completionHandler:^(PAGBannerAd * _Nullable bannerAd, NSError * _Nullable error) {
+    // PAG SDK Banner 广告加载需要有效的 request 对象
+    PAGBannerRequest *request = [[PAGBannerRequest alloc] init];
+    // 设置竞价相关参数
+    if ([request respondsToSelector:@selector(setAdString:)]) {
+        request.adString = self.posId;
+    }
+    [PAGBannerAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGBannerAd * _Nullable bannerAd, NSError * _Nullable error) {
         if (error) {
             NSLog(@"Failed to load banner ad: %@", error.localizedDescription);
             [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];

@@ -35,6 +35,10 @@
     }
     // 广告请求配置
     PAGAppOpenRequest *request = [PAGAppOpenRequest request];
+    // 设置竞价相关参数
+    if ([request respondsToSelector:@selector(setAdString:)]) {
+        request.adString = self.posId;
+    }
     // 加载开屏广告
     [PAGLAppOpenAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGLAppOpenAd * _Nullable appOpenAd, NSError * _Nullable error) {
         if (error) {
