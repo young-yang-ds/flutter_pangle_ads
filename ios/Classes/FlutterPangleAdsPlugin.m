@@ -68,8 +68,22 @@ NSString *const kAdFeedViewId=@"flutter_pangle_ads_feed";
 - (void) initAd:(FlutterMethodCall*) call result:(FlutterResult) result{
     NSString* appId=call.arguments[@"appId"];
     PAGConfig *config = [PAGConfig shareConfig];
-    config.appID=appId;
+    config.appID = appId;
+    
+    // 海外版 PAG SDK 配置
+    config.debugLog = YES; // 开启调试日志
+    
+    // 设置测试模式（用于测试广告位）
+    #ifdef DEBUG
+    config.childDirected = PAGChildDirectedTypeDefault;
+    #endif
+    
     [PAGSdk startWithConfig:config completionHandler:^(BOOL success, NSError * _Nonnull error) {
+        if (error) {
+            NSLog(@"PAG SDK 初始化失败: %@", error.localizedDescription);
+        } else {
+            NSLog(@"PAG SDK 初始化成功");
+        }
         NSLog(@"initAd:%@",success?@"YES":@"NO");
         result(@(success));
     }];
