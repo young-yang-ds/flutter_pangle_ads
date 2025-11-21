@@ -24,10 +24,7 @@
     int count = [call.arguments[@"count"] intValue];
     // PAG SDK 使用静态方法加载原生广告
     PAGNativeRequest *request = [PAGNativeRequest request];
-    // 设置竞价相关参数
-    if ([request respondsToSelector:@selector(setAdString:)]) {
-        request.adString = self.posId;
-    }
+    // PAG SDK 原生广告使用默认请求配置
     [PAGLNativeAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGLNativeAd * _Nullable nativeAd, NSError * _Nullable error) {
         if (error) {
             NSLog(@"Failed to load native ad: %@", error.localizedDescription);
