@@ -43,8 +43,8 @@
             NSLog(@"   广告位ID: %@", self.posId);
             NSLog(@"   错误码: %ld", (long)error.code);
             NSLog(@"   错误信息: %@", error.localizedDescription);
-            [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-            [self dismiss];
+            [self.sp sendErrorEvent:error.code withErrMsg:error.localizedDescription];
+            [self dismissPage];
         } else {
             self.splashAd = appOpenAd;
             self.splashAd.delegate = self;
