@@ -78,6 +78,13 @@ NSString *const kAdFeedViewId=@"flutter_pangle_ads_feed";
     config.childDirected = PAGChildDirectedTypeDefault;
     #endif
     
+    // 尝试支持非竞价广告位（如果 SDK 支持）
+    // 注意：PAG SDK 海外版主要支持竞价类型，非竞价支持有限
+    if ([config respondsToSelector:@selector(setAllowNonBiddingAds:)]) {
+        [config performSelector:@selector(setAllowNonBiddingAds:) withObject:@YES];
+        NSLog(@"已尝试启用非竞价广告位支持");
+    }
+    
     [PAGSdk startWithConfig:config completionHandler:^(BOOL success, NSError * _Nonnull error) {
         if (error) {
             NSLog(@"PAG SDK 初始化失败: %@", error.localizedDescription);
