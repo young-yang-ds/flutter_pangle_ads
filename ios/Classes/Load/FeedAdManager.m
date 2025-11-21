@@ -8,7 +8,6 @@
 #import "FeedAdManager.h"
 
 @interface FeedAdManager()
-@property BUNativeExpressAdManager *adManager;// 广告管理对象
 
 @end
 

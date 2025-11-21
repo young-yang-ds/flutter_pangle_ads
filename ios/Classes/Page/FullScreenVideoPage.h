@@ -7,6 +7,6 @@
 
 #import "BaseAdPage.h"
 // 全屏视频广告
-@interface FullScreenVideoPage : BaseAdPage<BUNativeExpressFullscreenVideoAdDelegate>
-@property (nonatomic,strong) BUNativeExpressFullscreenVideoAd *fsad;
+@interface FullScreenVideoPage : BaseAdPage<PAGLInterstitialAdDelegate>
+@property (nonatomic,strong) PAGLInterstitialAd *fsad;
 @end

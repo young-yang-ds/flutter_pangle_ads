@@ -8,9 +8,9 @@
 #import <Foundation/Foundation.h>
 #import "BaseAdPage.h"
 
-@interface FeedAdLoad : BaseAdPage<BUNativeExpressAdViewDelegate>
+@interface FeedAdLoad : BaseAdPage<PAGLNativeAdLoadDelegate, PAGLNativeAdDelegate>
 @property (strong,nonatomic,nonnull) FlutterResult result;
-@property (strong,nonatomic,nullable) BUNativeExpressAdManager *adManager;
+@property (strong,nonatomic,nullable) PAGLNativeAdLoader *adLoader;
 // 加载信息流广告列表
 -(void) loadFeedAdList:(nonnull FlutterMethodCall *)call result:(nonnull FlutterResult) result eventSink:(nonnull FlutterEventSink )events;
 @end

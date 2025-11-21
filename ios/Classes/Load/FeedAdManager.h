@@ -6,14 +6,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <BUAdSDK/BUAdSDK.h>
+#import <PAGAdSDK/PAGAdSDK.h>
 
 @interface FeedAdManager : NSObject
 + (instancetype) share;
 // 加入到缓存中
-- (void) putAd:(NSNumber*) key value:(BUNativeExpressAdView*) value;
+- (void) putAd:(NSNumber*) key value:(PAGLNativeAd*) value;
 // 从缓存中获取
-- (BUNativeExpressAdView*) getAd:(NSNumber*) key;
+- (PAGLNativeAd*) getAd:(NSNumber*) key;
 // 从缓存中删除
 - (void) removeAd:(NSNumber*) key;
 

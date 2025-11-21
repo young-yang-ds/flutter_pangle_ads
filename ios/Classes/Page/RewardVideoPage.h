@@ -7,8 +7,8 @@
 
 #import "BaseAdPage.h"
 // 激励视频页面
-@interface RewardVideoPage : BaseAdPage<BUNativeExpressRewardedVideoAdDelegate>
-@property (nonatomic, strong) BUNativeExpressRewardedVideoAd *rvad;
+@interface RewardVideoPage : BaseAdPage<PAGRewardedAdDelegate>
+@property (nonatomic, strong) PAGRewardedAd *rvad;
 // 服务端验证的自定义信息
 @property (copy,nonatomic) NSString *customData;
 // 服务端验证的用户信息

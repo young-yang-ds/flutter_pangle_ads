@@ -7,8 +7,9 @@
 
 #import "AdBannerView.h"
 // Banner 广告 View
-@interface AdBannerView()<FlutterPlatformView,BUNativeExpressBannerViewDelegate>
-@property (strong,nonatomic) BUNativeExpressBannerView *bannerView;
+@interface AdBannerView()<FlutterPlatformView,PAGLBannerAdDelegate>
+@property (strong,nonatomic) PAGLBannerAd *bannerAd;
+@property (strong,nonatomic) UIView *bannerView;
 @property bool autoClose;
 @end
 // Banner 广告 View
@@ -35,65 +36,46 @@
     int width = [call.arguments[@"width"] intValue];
     int height = [call.arguments[@"height"] intValue];
     self.autoClose = [call.arguments[@"autoClose"] boolValue];
-    // 大于 0 说明需要设置刷新间隔
-    if(interval>0){
-        self.bannerView=[[BUNativeExpressBannerView alloc] initWithSlotID:self.posId rootViewController:self.rootController adSize:CGSizeMake(width, height) interval:interval];
-    }else{
-        self.bannerView=[[BUNativeExpressBannerView alloc] initWithSlotID:self.posId rootViewController:self.rootController adSize:CGSizeMake(width, height)];
-    }
-    self.bannerView.frame=CGRectMake(0, 0, width, height);
-    self.bannerView.delegate=self;
-    [self.bannerView loadAdData];
+    // 创建 Banner 容器
+    self.bannerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+    // 配置 Banner 广告请求
+    PAGBannerRequest *request = [PAGBannerRequest request];
+    PAGBannerAdSize bannerSize = PAGBannerAdSizeBanner;
+    // 加载 Banner 广告
+    [PAGLBannerAd loadAdWithSlotID:self.posId request:request adSize:bannerSize completionHandler:^(PAGLBannerAd * _Nullable bannerAd, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Failed to load banner ad: %@", error.localizedDescription);
+            [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
+        } else {
+            self.bannerAd = bannerAd;
+            self.bannerAd.delegate = self;
+            self.bannerAd.rootViewController = self.rootController;
+            [self.bannerView addSubview:self.bannerAd.bannerView];
+            [self sendEventAction:onAdLoaded];
+        }
+    }];
 }
 
-#pragma mark BUNativeExpressBannerViewDelegate
-- (void)nativeExpressBannerAdViewDidLoad:(BUNativeExpressBannerView *)bannerAdView {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
-    [self sendEventAction:onAdLoaded];
-}
+#pragma mark PAGLBannerAdDelegate
 
-- (void)nativeExpressBannerAdView:(BUNativeExpressBannerView *)bannerAdView didLoadFailWithError:(NSError *)error {
+- (void)adDidShow:(PAGLBannerAd *)ad {
     NSLog(@"%s",__FUNCTION__);
-    // 发送广告错误事件
-    [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-    self.bannerView=nil;
-}
-
-- (void)nativeExpressBannerAdViewRenderSuccess:(BUNativeExpressBannerView *)bannerAdView {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
+    // 发送广告曝光事件
     [self sendEventAction:onAdExposure];
 }
 
-- (void)nativeExpressBannerAdViewRenderFail:(BUNativeExpressBannerView *)bannerAdView error:(NSError *)error {
+- (void)adDidClick:(PAGLBannerAd *)ad {
     NSLog(@"%s",__FUNCTION__);
-    // 发送广告错误事件
-    [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-}
-
-- (void)nativeExpressBannerAdViewWillBecomVisible:(BUNativeExpressBannerView *)bannerAdView {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
-    [self sendEventAction:onAdExposure];
-}
-
-- (void)nativeExpressBannerAdViewDidClick:(BUNativeExpressBannerView *)bannerAdView {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
+    // 发送广告点击事件
     [self sendEventAction:onAdClicked];
 }
 
-- (void)nativeExpressBannerAdView:(BUNativeExpressBannerView *)bannerAdView dislikeWithReason:(NSArray<BUDislikeWords *> *)filterwords {
-    NSLog(@"%s",__FUNCTION__);
-}
-
-- (void)nativeExpressBannerAdViewDidRemoved:(BUNativeExpressBannerView *)bannerAdView {
+- (void)adDidDismiss:(PAGLBannerAd *)ad {
     NSLog(@"%s",__FUNCTION__);
     if(self.autoClose){
-        [bannerAdView removeFromSuperview];
+        [self.bannerView removeFromSuperview];
     }
-    // 发送广告事件
+    // 发送广告关闭事件
     [self sendEventAction:onAdClosed];
 }
 

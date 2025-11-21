@@ -67,9 +67,9 @@ NSString *const kAdFeedViewId=@"flutter_pangle_ads_feed";
 // 初始化广告
 - (void) initAd:(FlutterMethodCall*) call result:(FlutterResult) result{
     NSString* appId=call.arguments[@"appId"];
-    BUAdSDKConfiguration *config = [BUAdSDKConfiguration configuration];
+    PAGConfig *config = [PAGConfig shareConfig];
     config.appID=appId;
-    [BUAdSDKManager startWithSyncCompletionHandler:^(BOOL success, NSError *error) {
+    [PAGSdk startWithConfig:config completionHandler:^(BOOL success, NSError * _Nonnull error) {
         NSLog(@"initAd:%@",success?@"YES":@"NO");
         result(@(success));
     }];

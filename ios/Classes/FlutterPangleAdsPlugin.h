@@ -1,5 +1,5 @@
 #import <Flutter/Flutter.h>
-#import <BUAdSDK/BUAdSDK.h>
+#import <PAGAdSDK/PAGAdSDK.h>
 #import "SplashPage.h"
 #import "RewardVideoPage.h"
 #import "FullScreenVideoPage.h"

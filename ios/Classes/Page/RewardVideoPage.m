@@ -13,120 +13,55 @@
     self.customData = call.arguments[@"customData"] ;
     self.userId = call.arguments[@"userId"];
     // 初始化激励视频广告
-    BURewardedVideoModel *model = [[BURewardedVideoModel alloc] init];
-    model.extra=self.customData;
-    model.userId=self.userId;
-    self.rvad=[[BUNativeExpressRewardedVideoAd alloc] initWithSlotID:self.posId rewardedVideoModel:model];
-    self.rvad.delegate=self;
-    self.rvad.rewardPlayAgainInteractionDelegate=self;
-    [self.rvad loadAdData];
+    PAGRewardedRequest *request = [PAGRewardedRequest request];
+    request.userID = self.userId;
+    request.extraInfo = self.customData;
+    [PAGRewardedAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGRewardedAd * _Nullable rewardedAd, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Failed to load rewarded ad: %@", error.localizedDescription);
+            [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
+        } else {
+            self.rvad = rewardedAd;
+            self.rvad.delegate = self;
+            [self sendEventAction:onAdLoaded];
+            if(self.rvad){
+                [self.rvad presentFromRootViewController:self.rootController];
+            }
+        }
+    }];
 }
 
 
-#pragma mark - BUNativeExpressRewardedVideoAdDelegate
-- (void)nativeExpressRewardedVideoAdDidLoad:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    if(self.rvad){
-        [self.rvad showAdFromRootViewController:self.rootController];
-    }
-    // 发送广告事件
-    [self sendEventAction:onAdLoaded];
-}
+#pragma mark - PAGRewardedAdDelegate
 
-- (void)nativeExpressRewardedVideoAd:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd didFailWithError:(NSError *_Nullable)error {
+- (void)adDidShow:(PAGRewardedAd *)ad {
     NSLog(@"%s",__FUNCTION__);
-    // 发送广告错误事件
-    [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-}
-
-- (void)nativeExpressRewardedVideoAdCallback:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd withType:(BUNativeExpressRewardedVideoAdType)nativeExpressVideoType{
-    NSLog(@"%s",__FUNCTION__);
-}
-
-- (void)nativeExpressRewardedVideoAdDidDownLoadVideo:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-}
-
-- (void)nativeExpressRewardedVideoAdViewRenderSuccess:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
-    [self sendEventAction:onAdPresent];
-    
-}
-
-- (void)nativeExpressRewardedVideoAdViewRenderFail:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd error:(NSError *_Nullable)error {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告错误事件
-    [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-}
-
-- (void)nativeExpressRewardedVideoAdWillVisible:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-}
-
-- (void)nativeExpressRewardedVideoAdDidVisible:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
+    // 发送广告曝光事件
     [self sendEventAction:onAdExposure];
+    [self sendEventAction:onAdPresent];
 }
 
-- (void)nativeExpressRewardedVideoAdWillClose:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd {
+- (void)adDidClick:(PAGRewardedAd *)ad {
     NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
-    [self sendEventAction:onAdClosed];
-}
-
-- (void)nativeExpressRewardedVideoAdDidClose:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    self.rvad=nil;
-}
-
-- (void)nativeExpressRewardedVideoAdDidClick:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
+    // 发送广告点击事件
     [self sendEventAction:onAdClicked];
 }
 
-- (void)nativeExpressRewardedVideoAdDidClickSkip:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd {
+- (void)adDidDismiss:(PAGRewardedAd *)ad {
     NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
-    [self sendEventAction:onAdSkip];
+    // 发送广告关闭事件
+    [self sendEventAction:onAdClosed];
+    self.rvad = nil;
 }
 
-- (void)nativeExpressRewardedVideoAdDidPlayFinish:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd didFailWithError:(NSError *_Nullable)error {
+- (void)rewardedAd:(PAGRewardedAd *)rewardedAd userDidEarnReward:(PAGRewardModel *)rewardModel {
     NSLog(@"%s",__FUNCTION__);
-    if(error){
-        // 发送广告错误事件
-        [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-    }else{
-        // 发送广告事件
-        [self sendEventAction:onAdComplete];
-    }
-}
-
-- (void)nativeExpressRewardedVideoAdServerRewardDidSucceed:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd verify:(BOOL)verify {
-    NSLog(@"%s",__FUNCTION__);
-    NSLog(@"%@",[NSString stringWithFormat:@"verify:%@ rewardType:%@ rewardName:%ld rewardMount:%ld",verify?@"true":@"false",rewardedVideoAd.rewardedVideoModel.rewardName,(long)rewardedVideoAd.rewardedVideoModel.rewardType,(long)rewardedVideoAd.rewardedVideoModel.rewardAmount]);
-    BURewardedVideoModel *model=rewardedVideoAd.rewardedVideoModel;
+    NSLog(@"User earned reward: name=%@, amount=%ld", rewardModel.rewardName, (long)rewardModel.rewardAmount);
+    // 发送广告完成事件
+    [self sendEventAction:onAdComplete];
     // 发送激励事件
-    AdRewardEvent *rewardEvent=[[AdRewardEvent alloc] initWithAdId:self.posId rewardType:model.rewardType rewardVerify:verify rewardAmount:model.rewardAmount rewardName:model.rewardName customData:self.customData userId:self.userId errCode:0 errMsg:@""];
+    AdRewardEvent *rewardEvent=[[AdRewardEvent alloc] initWithAdId:self.posId rewardType:0 rewardVerify:YES rewardAmount:rewardModel.rewardAmount rewardName:rewardModel.rewardName customData:self.customData userId:self.userId errCode:0 errMsg:@""];
     [self sendEvent:rewardEvent];
-    
-    
-}
-
-- (void)nativeExpressRewardedVideoAdServerRewardDidFail:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd error:(NSError * _Nullable)error {
-    NSLog(@"%s",__FUNCTION__);
-    
-    NSLog(@"%@",[NSString stringWithFormat:@"rewardName:%@ rewardMount:%ld error:%@",rewardedVideoAd.rewardedVideoModel.rewardName,(long)rewardedVideoAd.rewardedVideoModel.rewardAmount,error]);
-    // 发送激励事件
-    BURewardedVideoModel *model=rewardedVideoAd.rewardedVideoModel;
-    AdRewardEvent *rewardEvent=[[AdRewardEvent alloc] initWithAdId:self.posId rewardType:model.rewardType rewardVerify:NO rewardAmount:model.rewardAmount rewardName:model.rewardName customData:self.customData userId:self.userId errCode:error.code  errMsg:error.localizedDescription];
-    [self sendEvent:rewardEvent];
-}
-
-- (void)nativeExpressRewardedVideoAdDidCloseOtherController:(BUNativeExpressRewardedVideoAd *)rewardedVideoAd interactionType:(BUInteractionType)interactionType {
-    NSLog(@"%s",__FUNCTION__);
 }
 
 @end

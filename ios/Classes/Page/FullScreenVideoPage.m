@@ -10,92 +10,43 @@
 @implementation FullScreenVideoPage
 // 加载广告
 - (void)loadAd:(FlutterMethodCall *)call{
-    self.fsad=[[BUNativeExpressFullscreenVideoAd alloc] initWithSlotID:self.posId];
-    self.fsad.delegate=self;
-    [self.fsad loadAdData];
+    PAGInterstitialRequest *request = [PAGInterstitialRequest request];
+    [PAGLInterstitialAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGLInterstitialAd * _Nullable interstitialAd, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Failed to load interstitial ad: %@", error.localizedDescription);
+            [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
+        } else {
+            self.fsad = interstitialAd;
+            self.fsad.delegate = self;
+            [self sendEventAction:onAdLoaded];
+            if(self.fsad){
+                [self.fsad presentFromRootViewController:self.rootController];
+            }
+        }
+    }];
 }
 
-#pragma mark - BUNativeExpressFullscreenVideoAdDelegate
-- (void)nativeExpressFullscreenVideoAdDidLoad:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    if(self.fsad){
-        [self.fsad showAdFromRootViewController:self.rootController];
-    }
-    // 发送广告事件
-    [self sendEventAction:onAdLoaded];
-}
+#pragma mark - PAGLInterstitialAdDelegate
 
-- (void)nativeExpressFullscreenVideoAd:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd didFailWithError:(NSError *_Nullable)error {
+- (void)adDidShow:(PAGLInterstitialAd *)ad {
     NSLog(@"%s",__FUNCTION__);
-    // 发送广告错误事件
-    [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-}
-
-- (void)nativeExpressFullscreenVideoAdViewRenderSuccess:(BUNativeExpressFullscreenVideoAd *)rewardedVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
+    // 发送广告曝光事件
+    [self sendEventAction:onAdExposure];
     [self sendEventAction:onAdPresent];
 }
 
-- (void)nativeExpressFullscreenVideoAdViewRenderFail:(BUNativeExpressFullscreenVideoAd *)rewardedVideoAd error:(NSError *_Nullable)error {
+- (void)adDidClick:(PAGLInterstitialAd *)ad {
     NSLog(@"%s",__FUNCTION__);
-    // 发送广告错误事件
-    [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-}
-
-- (void)nativeExpressFullscreenVideoAdDidDownLoadVideo:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-}
-
-- (void)nativeExpressFullscreenVideoAdWillVisible:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-}
-
-- (void)nativeExpressFullscreenVideoAdDidVisible:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
-    [self sendEventAction:onAdExposure];
-}
-
-- (void)nativeExpressFullscreenVideoAdDidClick:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
+    // 发送广告点击事件
     [self sendEventAction:onAdClicked];
 }
 
-- (void)nativeExpressFullscreenVideoAdDidClickSkip:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
+- (void)adDidDismiss:(PAGLInterstitialAd *)ad {
     NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
-    [self sendEventAction:onAdSkip];
-}
-
-- (void)nativeExpressFullscreenVideoAdWillClose:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
+    // 发送广告关闭事件
     [self sendEventAction:onAdClosed];
-}
-
-- (void)nativeExpressFullscreenVideoAdDidClose:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd {
-    NSLog(@"%s",__FUNCTION__);
-    self.fsad=nil;
-}
-
-- (void)nativeExpressFullscreenVideoAdDidPlayFinish:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd didFailWithError:(NSError *_Nullable)error {
-    NSLog(@"%s",__FUNCTION__);
-    if(error){
-        // 发送广告错误事件
-        [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-    }else{
-        // 发送广告事件
-        [self sendEventAction:onAdComplete];
-    }
-}
-
-- (void)nativeExpressFullscreenVideoAdCallback:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd withType:(BUNativeExpressFullScreenAdType) nativeExpressVideoAdType{
-    NSLog(@"%s",__FUNCTION__);
-}
-
-- (void)nativeExpressFullscreenVideoAdDidCloseOtherController:(BUNativeExpressFullscreenVideoAd *)fullscreenVideoAd interactionType:(BUInteractionType)interactionType {
-    NSLog(@"%s",__FUNCTION__);
+    // 发送广告完成事件
+    [self sendEventAction:onAdComplete];
+    self.fsad = nil;
 }
 @end

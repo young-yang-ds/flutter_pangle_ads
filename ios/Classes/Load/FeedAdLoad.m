@@ -22,35 +22,34 @@
     int width = [call.arguments[@"width"] intValue];
     int height = [call.arguments[@"height"] intValue];
     int count = [call.arguments[@"count"] intValue];
-    // 配置广告加载信息
-    BUAdSlot *slot= [[BUAdSlot alloc]init];
-    slot.ID=self.posId;
-    slot.AdType=BUAdSlotAdTypeFeed;
-    slot.position=BUAdSlotPositionFeed;
-    if(!self.adManager){
-        self.adManager= [[BUNativeExpressAdManager alloc] initWithSlot:slot adSize:CGSizeMake(width, height)];
+    // 配置广告请求
+    PAGNativeRequest *request = [PAGNativeRequest request];
+    request.adString = self.posId;
+    if(!self.adLoader){
+        self.adLoader = [[PAGLNativeAdLoader alloc] initWithSlotID:self.posId];
     }
-    self.adManager.adSize=CGSizeMake(width, height);
-    self.adManager.delegate=self;
+    self.adLoader.delegate = self;
     // 加载广告
-    [self.adManager loadAdDataWithCount:count];
+    [self.adLoader loadAdWithCount:count];
 }
 
-#pragma mark BUNativeExpressAdViewDelegate
+#pragma mark PAGLNativeAdLoadDelegate
 
-- (void)nativeExpressAdFailToLoad:(BUNativeExpressAdManager *)nativeExpressAdManager error:(NSError *)error{
+- (void)adLoader:(PAGLNativeAdLoader *)adLoader didFailWithError:(NSError *)error{
     NSLog(@"%s",__FUNCTION__);
     // 发送广告错误事件
     [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
 }
 
-- (void)nativeExpressAdSuccessToLoad:(BUNativeExpressAdManager *)nativeExpressAdManager views:(NSArray<__kindof BUNativeExpressAdView *> *)views{
+- (void)adLoader:(PAGLNativeAdLoader *)adLoader didReceiveNativeAds:(NSArray<PAGLNativeAd *> *)nativeAds{
     NSLog(@"%s",__FUNCTION__);
-    if (views.count) {
+    if (nativeAds.count) {
         // 广告列表，用于返回 Flutter 层
         NSMutableArray *adList= [[NSMutableArray alloc] init];
-        [views enumerateObjectsUsingBlock:^(id _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            // 通过hash 来标识不同的原生广告 View
+        [nativeAds enumerateObjectsUsingBlock:^(id _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            PAGLNativeAd *nativeAd = obj;
+            nativeAd.delegate = self;
+            // 通过hash 来标识不同的原生广告
             NSNumber *key=[NSNumber numberWithInteger:[obj hash]];
             NSLog(@"FeedAdLoad idx:%lu obj:%p hash:%@",(unsigned long)[obj hash],obj,key);
             // 添加到返回列表中
@@ -65,56 +64,39 @@
     [self sendEventAction:onAdLoaded];
 }
 
-- (void)nativeExpressAdViewRenderFail:(BUNativeExpressAdView *)nativeExpressAdView error:(NSError *)error{
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告错误事件
-    [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-    [self postNotificationMsg:nativeExpressAdView userInfo:[NSDictionary dictionaryWithObject:onAdError forKey:@"event"]];
-}
+#pragma mark PAGLNativeAdDelegate
 
-- (void)nativeExpressAdViewRenderSuccess:(BUNativeExpressAdView *)nativeExpressAdView{
+- (void)adDidShow:(PAGLNativeAd *)ad{
     NSLog(@"%s",__FUNCTION__);
     // 发送广告事件
     [self sendEventAction:onAdExposure];
-    // 渲染成功，发送更新展示通知，来更新尺寸
-    [self postNotificationMsg:nativeExpressAdView userInfo:[NSDictionary dictionaryWithObject:onAdExposure forKey:@"event"]];
+    [self postNotificationMsg:ad userInfo:[NSDictionary dictionaryWithObject:onAdExposure forKey:@"event"]];
 }
 
-- (void)nativeExpressAdViewDidClick:(BUNativeExpressAdView *)nativeExpressAdView{
+- (void)adDidClick:(PAGLNativeAd *)ad{
     NSLog(@"%s",__FUNCTION__);
     // 发送广告事件
     [self sendEventAction:onAdClicked];
-    [self postNotificationMsg:nativeExpressAdView userInfo:[NSDictionary dictionaryWithObject:onAdClicked forKey:@"event"]];
+    [self postNotificationMsg:ad userInfo:[NSDictionary dictionaryWithObject:onAdClicked forKey:@"event"]];
 }
 
-- (void)nativeExpressAdViewWillShow:(BUNativeExpressAdView *)nativeExpressAdView{
+- (void)adDidDismiss:(PAGLNativeAd *)ad{
     NSLog(@"%s",__FUNCTION__);
-    // 发送广告事件
-    [self sendEventAction:onAdExposure];
-    [self postNotificationMsg:nativeExpressAdView userInfo:[NSDictionary dictionaryWithObject:onAdExposure forKey:@"event"]];
-}
-
-- (void)nativeExpressAdView:(BUNativeExpressAdView *)nativeExpressAdView dislikeWithReason:(NSArray<BUDislikeWords *> *)filterWords{
-    NSLog(@"%s",__FUNCTION__);
-}
-
-- (void)nativeExpressAdViewDidRemoved:(BUNativeExpressAdView *)nativeExpressAdView{
-    NSLog(@"%s",__FUNCTION__);
-    NSNumber *key=[NSNumber numberWithInteger:[nativeExpressAdView hash]];
+    NSNumber *key=[NSNumber numberWithInteger:[ad hash]];
     // 删除广告缓存
     [FeedAdManager.share removeAd:key];
     // 发送广告事件
     [self sendEventAction:onAdClosed];
-    [self postNotificationMsg:nativeExpressAdView userInfo:[NSDictionary dictionaryWithObject:onAdClosed forKey:@"event"]];
+    [self postNotificationMsg:ad userInfo:[NSDictionary dictionaryWithObject:onAdClosed forKey:@"event"]];
 }
 
 // 发送消息
 // 这里发送消息到信息流View，主要是适配信息流 View 的尺寸
-- (void) postNotificationMsg:(BUNativeExpressAdView *) adView userInfo:(NSDictionary *) userInfo{
+- (void) postNotificationMsg:(PAGLNativeAd *) ad userInfo:(NSDictionary *) userInfo{
     NSLog(@"%s",__FUNCTION__);
-    NSNumber *key=[NSNumber numberWithInteger:[adView hash]];
+    NSNumber *key=[NSNumber numberWithInteger:[ad hash]];
     NSString *name=[NSString stringWithFormat:@"%@/%@", kAdFeedViewId, key.stringValue];
-    [[NSNotificationCenter defaultCenter] postNotificationName:name object:adView userInfo:userInfo];
+    [[NSNotificationCenter defaultCenter] postNotificationName:name object:ad userInfo:userInfo];
 }
 
 @end

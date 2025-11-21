@@ -10,7 +10,7 @@
 #import "AdErrorEvent.h"
 #import "AdRewardEvent.h"
 #import "AdEventAction.h"
-#import <BUAdSDK/BUAdSDK.h>
+#import <PAGAdSDK/PAGAdSDK.h>
 
 // 基础广告页面
 @interface BaseAdPage : NSObject
