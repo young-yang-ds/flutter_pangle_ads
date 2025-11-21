@@ -24,7 +24,7 @@
     int count = [call.arguments[@"count"] intValue];
     // PAG SDK 使用静态方法加载原生广告
     PAGNativeRequest *request = [PAGNativeRequest request];
-    // 不设置 extraInfo，让 SDK 自动判断广告位类型
+    // SDK 会根据广告位配置自动处理，支持 In-App Bidding
     [PAGLNativeAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGLNativeAd * _Nullable nativeAd, NSError * _Nullable error) {
         if (error) {
             NSLog(@"Failed to load native ad: %@", error.localizedDescription);

@@ -33,15 +33,18 @@
         logoView.userInteractionEnabled=false;
         [self.splashView addSubview:logoView];
     }
-    // 广告请求配置 - 兼容竞价和非竞价广告位
+    // 广告请求配置 - 支持普通竞价、App内绞价和非绞价
     PAGAppOpenRequest *request = [PAGAppOpenRequest request];
-    // 不设置 extraInfo，让 SDK 自动判断广告位类型
+    // SDK 会根据广告位配置自动处理，支持 In-App Bidding
     // 加载开屏广告
     [PAGLAppOpenAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGLAppOpenAd * _Nullable appOpenAd, NSError * _Nullable error) {
         if (error) {
-            NSLog(@"Failed to load ad: %@", error.localizedDescription);
-            [self dismissPage];
-            [self.sp sendErrorEvent:error.code withErrMsg:error.localizedDescription];
+            NSLog(@"❌ 开屏广告加载失败");
+            NSLog(@"   广告位ID: %@", self.posId);
+            NSLog(@"   错误码: %ld", (long)error.code);
+            NSLog(@"   错误信息: %@", error.localizedDescription);
+            [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
+            [self dismiss];
         } else {
             self.splashAd = appOpenAd;
             self.splashAd.delegate = self;

@@ -40,10 +40,13 @@
     self.bannerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
     // PAG SDK Banner 广告加载需要有效的 request 对象
     PAGBannerRequest *request = [[PAGBannerRequest alloc] init];
-    // 不设置 extraInfo，让 SDK 自动判断广告位类型
+    // SDK 会根据广告位配置自动处理，支持 In-App Bidding
     [PAGBannerAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGBannerAd * _Nullable bannerAd, NSError * _Nullable error) {
         if (error) {
-            NSLog(@"Failed to load banner ad: %@", error.localizedDescription);
+            NSLog(@"❌ Banner广告加载失败");
+            NSLog(@"   广告位ID: %@", self.posId);
+            NSLog(@"   错误码: %ld", (long)error.code);
+            NSLog(@"   错误信息: %@", error.localizedDescription);
             [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
         } else {
             self.bannerAd = bannerAd;

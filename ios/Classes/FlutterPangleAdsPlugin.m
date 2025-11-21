@@ -87,9 +87,11 @@ NSString *const kAdFeedViewId=@"flutter_pangle_ads_feed";
     
     [PAGSdk startWithConfig:config completionHandler:^(BOOL success, NSError * _Nonnull error) {
         if (error) {
-            NSLog(@"PAG SDK 初始化失败: %@", error.localizedDescription);
+            NSLog(@"❌ PAG SDK 初始化失败: %@, 错误码: %ld", error.localizedDescription, (long)error.code);
         } else {
-            NSLog(@"PAG SDK 初始化成功");
+            NSLog(@"✅ PAG SDK 初始化成功");
+            NSLog(@"📱 SDK 版本: %@", [PAGSdk SDKVersion]);
+            NSLog(@"🔧 App ID: %@", config.appID);
         }
         NSLog(@"initAd:%@",success?@"YES":@"NO");
         result(@(success));

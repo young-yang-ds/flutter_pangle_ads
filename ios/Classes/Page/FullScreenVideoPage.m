@@ -11,10 +11,13 @@
 // 加载广告
 - (void)loadAd:(FlutterMethodCall *)call{
     PAGInterstitialRequest *request = [PAGInterstitialRequest request];
-    // 不设置 extraInfo，让 SDK 自动判断广告位类型
+    // SDK 会根据广告位配置自动处理，支持 In-App Bidding
     [PAGLInterstitialAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGLInterstitialAd * _Nullable interstitialAd, NSError * _Nullable error) {
         if (error) {
-            NSLog(@"Failed to load interstitial ad: %@", error.localizedDescription);
+            NSLog(@"❌ 全屏视频广告加载失败");
+            NSLog(@"   广告位ID: %@", self.posId);
+            NSLog(@"   错误码: %ld", (long)error.code);
+            NSLog(@"   错误信息: %@", error.localizedDescription);
             [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
         } else {
             self.fsad = interstitialAd;

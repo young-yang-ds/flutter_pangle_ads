@@ -14,10 +14,17 @@
     self.userId = call.arguments[@"userId"];
     // 初始化激励视频广告
     PAGRewardedRequest *request = [PAGRewardedRequest request];
-    // 不设置 extraInfo，让 SDK 自动判断广告位类型
+    // SDK 会根据广告位配置自动处理，支持 In-App Bidding
     [PAGRewardedAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGRewardedAd * _Nullable rewardedAd, NSError * _Nullable error) {
         if (error) {
-            NSLog(@"Failed to load rewarded ad: %@", error.localizedDescription);
+            NSLog(@"❌ 激励视频广告加载失败");
+            NSLog(@"   广告位ID: %@", self.posId);
+            NSLog(@"   错误码: %ld", (long)error.code);
+            NSLog(@"   错误信息: %@", error.localizedDescription);
+            NSLog(@"   错误域: %@", error.domain);
+            if (error.userInfo) {
+                NSLog(@"   详细信息: %@", error.userInfo);
+            }
             [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
         } else {
             self.rvad = rewardedAd;
