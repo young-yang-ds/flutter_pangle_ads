@@ -11,7 +11,11 @@
 // 加载广告
 - (void)loadAd:(FlutterMethodCall *)call{
     PAGInterstitialRequest *request = [PAGInterstitialRequest request];
-    // PAG SDK 插屏广告使用默认请求配置
+    // 设置额外信息，支持竞价
+    if ([request respondsToSelector:@selector(setExtraInfo:)]) {
+        NSDictionary *extraInfo = @{@"is_bidding": @YES};
+        request.extraInfo = extraInfo;
+    }
     [PAGLInterstitialAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGLInterstitialAd * _Nullable interstitialAd, NSError * _Nullable error) {
         if (error) {
             NSLog(@"Failed to load interstitial ad: %@", error.localizedDescription);

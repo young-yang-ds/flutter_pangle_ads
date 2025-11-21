@@ -33,9 +33,13 @@
         logoView.userInteractionEnabled=false;
         [self.splashView addSubview:logoView];
     }
-    // 广告请求配置
+    // 广告请求配置 - 竞价广告位必须配置
     PAGAppOpenRequest *request = [PAGAppOpenRequest request];
-    // PAG SDK 开屏广告使用默认请求配置
+    // 设置额外信息，支持竞价
+    if ([request respondsToSelector:@selector(setExtraInfo:)]) {
+        NSDictionary *extraInfo = @{@"is_bidding": @YES};
+        request.extraInfo = extraInfo;
+    }
     // 加载开屏广告
     [PAGLAppOpenAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGLAppOpenAd * _Nullable appOpenAd, NSError * _Nullable error) {
         if (error) {
