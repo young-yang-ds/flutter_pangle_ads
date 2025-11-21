@@ -22,9 +22,7 @@
     int width = [call.arguments[@"width"] intValue];
     int height = [call.arguments[@"height"] intValue];
     int count = [call.arguments[@"count"] intValue];
-    // 配置广告请求
-    PAGNativeRequest *request = [PAGNativeRequest request];
-    request.adString = self.posId;
+    // 配置广告加载器
     if(!self.adLoader){
         self.adLoader = [[PAGLNativeAdLoader alloc] initWithSlotID:self.posId];
     }

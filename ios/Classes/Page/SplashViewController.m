@@ -35,7 +35,6 @@
     }
     // 广告请求配置
     PAGAppOpenRequest *request = [PAGAppOpenRequest request];
-    request.timeout = self.timeout;
     // 加载开屏广告
     [PAGAppOpenAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGAppOpenAd * _Nullable appOpenAd, NSError * _Nullable error) {
         if (error) {
