@@ -73,17 +73,17 @@ NSString *const kAdFeedViewId=@"flutter_pangle_ads_feed";
     // 海外版 PAG SDK 配置
     config.debugLog = YES; // 开启调试日志
     
-    // 设置测试模式（用于测试广告位）
+    // 检查是否使用官方测试 App ID
+    BOOL isTestAppId = [appId isEqualToString:@"8025677"];
+    if (isTestAppId) {
+        NSLog(@"🧪 检测到 Pangle Global 官方测试 App ID: 8025677");
+        NSLog(@"📝 请确保使用官方测试广告位 ID，参考: PANGLE_GLOBAL_TEST_IDS.md");
+    }
+    
+    // 设置 GDPR/COPPA 等隐私配置
     #ifdef DEBUG
     config.childDirected = PAGChildDirectedTypeDefault;
     #endif
-    
-    // 尝试支持非竞价广告位（如果 SDK 支持）
-    // 注意：PAG SDK 海外版主要支持竞价类型，非竞价支持有限
-    if ([config respondsToSelector:@selector(setAllowNonBiddingAds:)]) {
-        [config performSelector:@selector(setAllowNonBiddingAds:) withObject:@YES];
-        NSLog(@"已尝试启用非竞价广告位支持");
-    }
     
     [PAGSdk startWithConfig:config completionHandler:^(BOOL success, NSError * _Nonnull error) {
         if (error) {

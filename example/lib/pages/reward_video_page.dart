@@ -26,8 +26,8 @@ class _RewardVideoPageState extends State<RewardVideoPage> {
           ),
           kDivider,
           ListTile(
-            title: Text('激励视频-二次进阶'),
-            onTap: () => showRewardVideoAd(AdsConfig.rewardInteractVideoId),
+            title: Text('激励视频-横屏'),
+            onTap: () => showRewardVideoAd(AdsConfig.rewardVideoIdHorizontal),
           ),
           kDivider,
         ],

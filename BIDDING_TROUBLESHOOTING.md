@@ -1,5 +1,7 @@
 # Server Bidding 问题排查指南
 
+> ⭐ **快速解决**：请使用 Pangle Global 官方测试广告位，详见 [PANGLE_GLOBAL_TEST_IDS.md](./PANGLE_GLOBAL_TEST_IDS.md)
+
 ## 问题描述
 
 使用穿山甲官方测试广告位时：

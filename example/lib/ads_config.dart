@@ -20,36 +20,40 @@ class AdsConfig {
     }
   }
 
-  /// 获取 App id
-  static String get appId => '5324024';
+  /// 获取 App id - Pangle Global 官方测试 App ID
+  /// 官方文档: https://www.pangleglobal.com/integration/How-to-Test-Pangle-Ads-with-Ad-ID
+  static String get appId => '8025677';
 
-  /// 获取开屏广告位id
-  static String get splashId => '887870893';
+  /// 获取开屏广告位id - Server Bidding (竖屏)
+  static String get splashId => '890008769';
 
-  /// 获取新插屏广告位id
-  static String get newInterstitialId => '949641653';
+  /// 获取开屏广告位id - Server Bidding (横屏)
+  static String get splashIdHorizontal => '890008770';
 
-  /// 获取新插屏（半屏）广告位id
-  static String get newInterstitialId2 => '949641665';
+  /// 获取插屏广告位id - Server Bidding (竖屏)
+  static String get newInterstitialId => '980088186';
 
-  /// 获取激励视频广告位id
-  static String get rewardVideoId => '949641706';
+  /// 获取插屏广告位id - Server Bidding (横屏)
+  static String get newInterstitialId2 => '980099797';
 
-  /// 获取进阶激励视频广告位id
-  static String get rewardInteractVideoId => '949641720';
+  /// 获取激励视频广告位id - Server Bidding (竖屏)
+  static String get rewardVideoId => '980088190';
 
-  /// 获取全屏视频广告位id
-  static String get fullScreenVideoId => '946593099';
+  /// 获取激励视频广告位id - Server Bidding (横屏)
+  static String get rewardVideoIdHorizontal => '980099800';
 
-  /// 获取 Banner 广告位id
-  static String get bannerId => '949641731';
+  /// 获取全屏视频广告位id (使用插屏广告位)
+  static String get fullScreenVideoId => '980088186';
 
-  /// 获取 Banner 广告位id 01
-  static String get bannerId01 => '949641733';
+  /// 获取 Banner 广告位id - Server Bidding (320*50)
+  static String get bannerId => '980099803';
+
+  /// 获取 Banner 广告位id - Server Bidding (300*250)
+  static String get bannerId01 => '980088194';
 
   /// 获取 Banner 广告位id 02
-  static String get bannerId02 => '949641736';
+  static String get bannerId02 => '980099803';
 
-  /// 获取 Feed 信息流广告位id(左右图文 2.4)
-  static String get feedId => '949641744';
+  /// 获取 Feed 信息流广告位id - Server Bidding
+  static String get feedId => '980088198';
 }
