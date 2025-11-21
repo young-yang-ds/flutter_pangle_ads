@@ -7,8 +7,8 @@
 
 #import "AdBannerView.h"
 // Banner 广告 View
-@interface AdBannerView()<FlutterPlatformView,PAGLBannerAdDelegate>
-@property (strong,nonatomic) PAGLBannerAd *bannerAd;
+@interface AdBannerView()<FlutterPlatformView,PAGBannerAdDelegate>
+@property (strong,nonatomic) PAGBannerAd *bannerAd;
 @property (strong,nonatomic) UIView *bannerView;
 @property bool autoClose;
 @end
@@ -38,46 +38,40 @@
     self.autoClose = [call.arguments[@"autoClose"] boolValue];
     // 创建 Banner 容器
     self.bannerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
-    // 配置 Banner 广告请求
+    // PAG SDK Banner 广告使用简化加载方式
     PAGBannerRequest *request = [PAGBannerRequest request];
-    PAGBannerAdSize bannerSize = PAGBannerAdSizeBanner;
-    // 加载 Banner 广告
-    [PAGLBannerAd loadAdWithSlotID:self.posId request:request adSize:bannerSize completionHandler:^(PAGLBannerAd * _Nullable bannerAd, NSError * _Nullable error) {
+    [PAGBannerAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGBannerAd * _Nullable bannerAd, NSError * _Nullable error) {
         if (error) {
             NSLog(@"Failed to load banner ad: %@", error.localizedDescription);
             [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
         } else {
             self.bannerAd = bannerAd;
             self.bannerAd.delegate = self;
-            self.bannerAd.rootViewController = self.rootController;
-            // PAG SDK Banner 广告使用 presentFromRootViewController 自动展示
-            // 如果需要获取视图，检查是否有 view 属性
-            if ([self.bannerAd respondsToSelector:@selector(view)]) {
-                UIView *adView = [self.bannerAd performSelector:@selector(view)];
-                if (adView) {
-                    [self.bannerView addSubview:adView];
-                }
+            // 获取 Banner 视图并添加到容器
+            UIView *adView = self.bannerAd.bannerView;
+            if (adView) {
+                [self.bannerView addSubview:adView];
             }
             [self sendEventAction:onAdLoaded];
         }
     }];
 }
 
-#pragma mark PAGLBannerAdDelegate
+#pragma mark PAGBannerAdDelegate
 
-- (void)adDidShow:(PAGLBannerAd *)ad {
+- (void)adDidShow:(PAGBannerAd *)ad {
     NSLog(@"%s",__FUNCTION__);
     // 发送广告曝光事件
     [self sendEventAction:onAdExposure];
 }
 
-- (void)adDidClick:(PAGLBannerAd *)ad {
+- (void)adDidClick:(PAGBannerAd *)ad {
     NSLog(@"%s",__FUNCTION__);
     // 发送广告点击事件
     [self sendEventAction:onAdClicked];
 }
 
-- (void)adDidDismiss:(PAGLBannerAd *)ad {
+- (void)adDidDismiss:(PAGBannerAd *)ad {
     NSLog(@"%s",__FUNCTION__);
     if(self.autoClose){
         [self.bannerView removeFromSuperview];

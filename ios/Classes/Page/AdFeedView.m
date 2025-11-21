@@ -88,11 +88,28 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(postMsghandler:) name:name object:nil];
     self.nativeAd=[FeedAdManager.share getAd:key];
     self.nativeAd.delegate = self;
-    self.nativeAd.rootViewController=self.rootController;
+    // PAG SDK 使用 rootViewController 属性设置控制器
+    if ([self.nativeAd respondsToSelector:@selector(setRootViewController:)]) {
+        [self.nativeAd performSelector:@selector(setRootViewController:) withObject:self.rootController];
+    }
     UIView *adView = [self getAdViewFromNativeAd:self.nativeAd];
     if (adView) {
         [self.feedView addSubview:adView];
     }
+}
+
+#pragma mark - PAGLNativeAdDelegate
+
+- (void)adDidShow:(PAGLNativeAd *)ad {
+    NSLog(@"%s",__FUNCTION__);
+}
+
+- (void)adDidClick:(PAGLNativeAd *)ad {
+    NSLog(@"%s",__FUNCTION__);
+}
+
+- (void)adDidDismiss:(PAGLNativeAd *)ad {
+    NSLog(@"%s",__FUNCTION__);
 }
 
 @end
