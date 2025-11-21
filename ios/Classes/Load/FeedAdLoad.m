@@ -22,44 +22,23 @@
     int width = [call.arguments[@"width"] intValue];
     int height = [call.arguments[@"height"] intValue];
     int count = [call.arguments[@"count"] intValue];
-    // 配置广告加载器
-    if(!self.adLoader){
-        self.adLoader = [[PAGLNativeAdLoader alloc] initWithSlotID:self.posId];
-    }
-    self.adLoader.delegate = self;
-    // 加载广告
-    [self.adLoader loadAdWithCount:count];
-}
-
-#pragma mark PAGLNativeAdLoadDelegate
-
-- (void)adLoader:(PAGLNativeAdLoader *)adLoader didFailWithError:(NSError *)error{
-    NSLog(@"%s",__FUNCTION__);
-    // 发送广告错误事件
-    [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
-}
-
-- (void)adLoader:(PAGLNativeAdLoader *)adLoader didReceiveNativeAds:(NSArray<PAGLNativeAd *> *)nativeAds{
-    NSLog(@"%s",__FUNCTION__);
-    if (nativeAds.count) {
-        // 广告列表，用于返回 Flutter 层
-        NSMutableArray *adList= [[NSMutableArray alloc] init];
-        [nativeAds enumerateObjectsUsingBlock:^(id _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            PAGLNativeAd *nativeAd = obj;
+    // PAG SDK 使用静态方法加载原生广告
+    PAGNativeRequest *request = [PAGNativeRequest request];
+    [PAGLNativeAd loadAdWithSlotID:self.posId request:request completionHandler:^(PAGLNativeAd * _Nullable nativeAd, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Failed to load native ad: %@", error.localizedDescription);
+            [self sendErrorEvent:error.code withErrMsg:error.localizedDescription];
+        } else if (nativeAd) {
+            // 单个广告加载成功，打包成数组
             nativeAd.delegate = self;
-            // 通过hash 来标识不同的原生广告
-            NSNumber *key=[NSNumber numberWithInteger:[obj hash]];
-            NSLog(@"FeedAdLoad idx:%lu obj:%p hash:%@",(unsigned long)[obj hash],obj,key);
-            // 添加到返回列表中
+            NSNumber *key = [NSNumber numberWithInteger:[nativeAd hash]];
+            NSMutableArray *adList = [[NSMutableArray alloc] init];
             [adList addObject:key];
-            // 添加到缓存广告列表中
-            [FeedAdManager.share putAd:key value:obj];
-        }];
-        // 返回广告列表
-        self.result(adList);
-    }
-    // 发送广告事件
-    [self sendEventAction:onAdLoaded];
+            [FeedAdManager.share putAd:key value:nativeAd];
+            self.result(adList);
+            [self sendEventAction:onAdLoaded];
+        }
+    }];
 }
 
 #pragma mark PAGLNativeAdDelegate
