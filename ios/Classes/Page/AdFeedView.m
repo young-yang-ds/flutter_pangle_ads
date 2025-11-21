@@ -46,20 +46,39 @@
     NSString *event=[userInfo objectForKey:@"event"];
     if([event isEqualToString:onAdExposure]){
         // 渲染成功，设置高度
-        CGSize size= nativeAd.adView.frame.size;
-        [self setFlutterViewSize:size];
+        UIView *adView = [self getAdViewFromNativeAd:nativeAd];
+        if (adView) {
+            CGSize size = adView.frame.size;
+            [self setFlutterViewSize:size];
+        }
     }else if([event isEqualToString:onAdClosed]){
         // 广告关闭移除广告，并且设置大小为 0，隐藏广告
-        [nativeAd.adView removeFromSuperview];
+        UIView *adView = [self getAdViewFromNativeAd:nativeAd];
+        if (adView) {
+            [adView removeFromSuperview];
+        }
         [self setFlutterViewSize:CGSizeZero];
     }
+}
+
+// 获取原生广告视图
+- (UIView *)getAdViewFromNativeAd:(PAGLNativeAd *)nativeAd {
+    if ([nativeAd respondsToSelector:@selector(adView)]) {
+        return [nativeAd performSelector:@selector(adView)];
+    } else if ([nativeAd respondsToSelector:@selector(view)]) {
+        return [nativeAd performSelector:@selector(view)];
+    }
+    return nil;
 }
 // 设置 FlutterAds 视图宽高
 - (void) setFlutterViewSize:(CGSize) size{
     NSNumber *width=[NSNumber numberWithFloat:size.width];
     NSNumber *height=[NSNumber numberWithFloat:size.height];
     NSDictionary *dicSize=[NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:width,height, nil] forKeys:[NSArray arrayWithObjects:@"width",@"height", nil]];
-    self.nativeAd.adView.center=self.feedView.center;
+    UIView *adView = [self getAdViewFromNativeAd:self.nativeAd];
+    if (adView) {
+        adView.center = self.feedView.center;
+    }
     [self.methodChannel invokeMethod:@"setSize" arguments:dicSize];
 }
 
@@ -70,7 +89,10 @@
     self.nativeAd=[FeedAdManager.share getAd:key];
     self.nativeAd.delegate = self;
     self.nativeAd.rootViewController=self.rootController;
-    [self.feedView addSubview:self.nativeAd.adView];
+    UIView *adView = [self getAdViewFromNativeAd:self.nativeAd];
+    if (adView) {
+        [self.feedView addSubview:adView];
+    }
 }
 
 @end

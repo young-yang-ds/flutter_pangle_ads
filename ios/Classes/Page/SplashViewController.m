@@ -64,9 +64,7 @@
     NSLog(@"%s",__FUNCTION__);
     // 发送广告曝光事件
     [self.sp sendEventAction:onAdExposure];
-    // 设置广告 View
-    [self.splashView addSubview:ad.splashView];
-    [self.view addSubview:self.splashView];
+    // PAG SDK 的开屏广告自动展示，无需手动添加视图
 }
 
 - (void)adDidClick:(PAGLAppOpenAd *)ad {

@@ -50,7 +50,14 @@
             self.bannerAd = bannerAd;
             self.bannerAd.delegate = self;
             self.bannerAd.rootViewController = self.rootController;
-            [self.bannerView addSubview:self.bannerAd.bannerView];
+            // PAG SDK Banner 广告使用 presentFromRootViewController 自动展示
+            // 如果需要获取视图，检查是否有 view 属性
+            if ([self.bannerAd respondsToSelector:@selector(view)]) {
+                UIView *adView = [self.bannerAd performSelector:@selector(view)];
+                if (adView) {
+                    [self.bannerView addSubview:adView];
+                }
+            }
             [self sendEventAction:onAdLoaded];
         }
     }];
