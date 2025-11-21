@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_pangle_ads/flutter_pangle_ads.dart';
 
@@ -38,6 +40,17 @@ class _MyAppState extends State<MyApp> {
 
 /// 初始化广告 SDK
 Future<bool> init() async {
+  // iOS 需要请求 IDFA 授权（必须！）
+  if (Platform.isIOS) {
+    debugPrint('📱 iOS 设备，请求 IDFA 授权...');
+    bool idfaResult = await FlutterPangleAds.requestIDFA;
+    debugPrint('IDFA 授权结果: ${idfaResult ? '✅ 已授权' : '❌ 拒绝授权'}');
+    
+    if (!idfaResult) {
+      debugPrint('⚠️ 警告：用户拒绝 IDFA 授权，广告可能无法正常加载');
+    }
+  }
+  
   bool result = await FlutterPangleAds.initAd(
     AdsConfig.appId,
     directDownloadNetworkType: [

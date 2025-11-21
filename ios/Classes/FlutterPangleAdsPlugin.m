@@ -2,6 +2,7 @@
 #import "NativeViewFactory.h"
 #import <AppTrackingTransparency/AppTrackingTransparency.h>
 #import <AdSupport/AdSupport.h>
+#import <os/log.h>
 
 @implementation FlutterPangleAdsPlugin
 // AdBannerView
@@ -66,7 +67,13 @@ NSString *const kAdFeedViewId=@"flutter_pangle_ads_feed";
 
 // 初始化广告
 - (void) initAd:(FlutterMethodCall*) call result:(FlutterResult) result{
+    NSLog(@"========================================");
+    NSLog(@"[FlutterPangleAds] initAd 被调用");
+    NSLog(@"========================================");
+    
     NSString* appId=call.arguments[@"appId"];
+    NSLog(@"[FlutterPangleAds] App ID: %@", appId);
+    
     PAGConfig *config = [PAGConfig shareConfig];
     config.appID = appId;
     
@@ -88,10 +95,12 @@ NSString *const kAdFeedViewId=@"flutter_pangle_ads_feed";
     [PAGSdk startWithConfig:config completionHandler:^(BOOL success, NSError * _Nonnull error) {
         if (error) {
             NSLog(@"❌ PAG SDK 初始化失败: %@, 错误码: %ld", error.localizedDescription, (long)error.code);
+            os_log_error(OS_LOG_DEFAULT, "PAG SDK 初始化失败: %{public}@, 错误码: %ld", error.localizedDescription, (long)error.code);
         } else {
             NSLog(@"✅ PAG SDK 初始化成功");
             NSLog(@"📱 SDK 版本: %@", [PAGSdk SDKVersion]);
             NSLog(@"🔧 App ID: %@", config.appID);
+            os_log_info(OS_LOG_DEFAULT, "PAG SDK 初始化成功, 版本: %{public}@, App ID: %{public}@", [PAGSdk SDKVersion], config.appID);
         }
         NSLog(@"initAd:%@",success?@"YES":@"NO");
         result(@(success));
